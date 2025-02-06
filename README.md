@@ -28,7 +28,7 @@ This project sets up an AWS infrastructure using Terraform that includes an SQS 
 1. Clone the repository:
    ```
    git clone <repository-url>
-   cd Cron-job-with-EventBridge
+   cd Scheduler-SimpleQService
    ```
 
 1.1 Prepare lambda package:
@@ -56,39 +56,41 @@ This project sets up an AWS infrastructure using Terraform that includes an SQS 
    terraform apply
    ```
 
-### Outputs
 
-After applying the configuration, Terraform will display the output values defined in `outputs.tf`, including the ARN of the created resources.   
 
-6. Add items to SQS:
+6. Add items to SQS. one that has expired and one that would expire in the future:
 ```
-aws sqs send-message-batch     --queue-url $sqs_queue_url --entries '[
+aws sqs send-message-batch  --queue-url $sqs_queue_url --entries '[
         {
             "Id": "msg1",
-            "MessageBody": "{\"task_id\": \"12345\", \"scheduled_time\": \"2025-02-04T12:00:00Z\"}"
+            "MessageBody": "{\"task_id\": \"19780512\", \"scheduled_time\": \"2025-02-04T12:00:00Z\"}"
         },
         {
             "Id": "msg2",
-            "MessageBody": "{\"task_id\": \"67890\", \"scheduled_time\": \"2025-02-04T13:00:00Z\"}"
+            "MessageBody": "{\"task_id\": \"1980917\", \"scheduled_time\": \"2025-02-07T00:00:00Z\"}"
         }
     ]'     --region us-east-1
+    
 ```
 
-7. after 15s , check logs
+7. after a minute or so , check logs
 ```
+#First task
+2025-02-06T23:16:53.095+08:00
+Running task 19780512
 
-2025-02-04T21:15:31.591+08:00
-INIT_START Runtime Version: python:3.9.v64 Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:57e9dce4a928fd5b7bc1015238a5bc8a9146f096d69571fa4219ed8a2e76bfdf
-2025-02-04T21:15:31.985+08:00
-START RequestId: 5687b0e8-5c70-5e75-83d2-d0f449588e32 Version: $LATEST
-2025-02-04T21:15:31.988+08:00
-Running task 12345
-2025-02-04T21:15:32.238+08:00
-Running task 67890
-2025-02-04T21:15:32.279+08:00
-END RequestId: 5687b0e8-5c70-5e75-83d2-d0f449588e32
+Running task 19780512
+
+#Second task
+2025-02-06T23:16:53.103+08:00
+Rescheduling task 1980917 to run in 31386 seconds
 
 ```
+
+
+### Outputs
+
+After applying the configuration, Terraform will display the output values defined in `outputs.tf`, including the ARN of the created resources.   
 
 ### Cleanup
 
